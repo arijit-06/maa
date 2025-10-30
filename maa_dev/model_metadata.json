@@ -1,0 +1,72 @@
+{
+  "model_info": {
+    "type": "TinyML Behavioral Classifier",
+    "framework": "TensorFlow Lite",
+    "quantization": "int8",
+    "target_device": "ESP32"
+  },
+  "features": {
+    "input_features": [
+      "day_of_week",
+      "temperature",
+      "pressure",
+      "aqi",
+      "temp_change_rate",
+      "aqi_change_rate",
+      "temp_avg_15min",
+      "aqi_avg_15min",
+      "is_night",
+      "is_morning",
+      "is_cooking_hours",
+      "is_weekend",
+      "hour_sin",
+      "hour_cos"
+    ],
+    "num_features": 14,
+    "scaling": "StandardScaler (zero mean, unit variance)"
+  },
+  "labels": {
+    "num_classes": 6,
+    "classes": [
+      "away",
+      "chill",
+      "cooking",
+      "high_activity",
+      "normal",
+      "sleeping"
+    ]
+  },
+  "model_architecture": {
+    "layers": "Dense(24) \u2192 Dropout(0.2) \u2192 Dense(6)",
+    "total_parameters": 510,
+    "activation": "ReLU",
+    "regularization": "L2(0.001)"
+  },
+  "training_data": {
+    "original_samples": 40320,
+    "augmented_samples": 161280,
+    "augmentation_multiplier": 4,
+    "train_samples": 112896,
+    "val_samples": 24192,
+    "test_samples": 24192
+  },
+  "performance": {
+    "keras_accuracy": 0.9968171119689941,
+    "keras_loss": 0.015806032344698906,
+    "tflite_accuracy": 0.996,
+    "quantization_drop": 0.0008171119689941442
+  },
+  "model_files": {
+    "keras_h5": "behavior_model_full.h5",
+    "tflite": "behavior_model_int8.tflite",
+    "tflite_size_kb": 3.1796875,
+    "c_header": "model_data.h",
+    "scaler_params": "scaler_params.json"
+  },
+  "quantization_params": {
+    "input_scale": 0.05483834445476532,
+    "input_zero_point": 3,
+    "output_scale": 0.00390625,
+    "output_zero_point": -128
+  }
+}

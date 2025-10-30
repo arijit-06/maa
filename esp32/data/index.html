@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESP32 LED Pattern</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>💡 ESP32 LED Pattern Controller</h1>
+      <p id="status">
+        Current Pattern: <span id="patternText">Loading...</span>
+      </p>
+
+      <form id="patternForm">
+        <input
+          type="text"
+          id="patternInput"
+          placeholder="Enter binary pattern (e.g., 101101)"
+          required
+        />
+        <button type="submit">Set Pattern</button>
+      </form>
+
+      <p class="note">Only 0s and 1s are allowed.</p>
+    </div>
+
+    <script>
+      // Fetch current pattern from ESP32
+      async function fetchPattern() {
+        const res = await fetch("/get");
+        const text = await res.text();
+        document.getElementById("patternText").textContent = text;
+      }
+
+      // Handle form submission
+      document
+        .getElementById("patternForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const input = document.getElementById("patternInput").value.trim();
+          const res = await fetch(`/set?p=${input}`);
+          const html = await res.text();
+          document.body.innerHTML = html; // reload updated HTML
+        });
+
+      fetchPattern(); // Load current pattern when page opens
+    </script>
+  </body>
+</html>

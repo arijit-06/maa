@@ -1,0 +1,71 @@
+/* General page styling */
+body {
+  background-color: #0f172a;
+  color: #f1f5f9;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+/* Container box */
+.container {
+  background: #1e293b;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Headings */
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  color: #38bdf8;
+}
+
+/* Paragraphs */
+p {
+  font-size: 1rem;
+}
+
+/* Input field */
+input[type="text"] {
+  width: 90%;
+  padding: 0.7rem;
+  margin: 1rem 0;
+  border: 2px solid #38bdf8;
+  border-radius: 0.5rem;
+  background-color: #0f172a;
+  color: #f1f5f9;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Button styling */
+button {
+  background-color: #38bdf8;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #0f172a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+button:hover {
+  background-color: #0ea5e9;
+}
+
+/* Small note text */
+.note {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
