@@ -17,7 +17,7 @@ print("╚═══════════════════════�
 # 1. LOAD DATA
 # ============================================
 print("[1/9] Loading training data...")
-df = pd.read_csv('behavioral_training_data_natural.csv')
+df = pd.read_csv('behavioral_training_data_natural_2.csv')
 print(f"✓ Loaded {len(df):,} samples")
 
 print(f"\nDataset shape: {df.shape}")

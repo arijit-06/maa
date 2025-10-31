@@ -13,8 +13,8 @@
 // ============================================
 // WIFI CREDENTIALS
 // ============================================
-const char* ssid = "pussy";
-const char* password = "yourmomisgays";
+const char *ssid = "pussy";
+const char *password = "yourmomisgays";
 
 // ============================================
 // SENSOR SETUP
@@ -30,13 +30,14 @@ WebServer server(80);
 // ============================================
 // TINYML GLOBALS
 // ============================================
-namespace {
+namespace
+{
     tflite::ErrorReporter *error_reporter = nullptr;
     const tflite::Model *model = nullptr;
     tflite::MicroInterpreter *interpreter = nullptr;
     TfLiteTensor *input = nullptr;
     TfLiteTensor *output = nullptr;
-    
+
     constexpr int kTensorArenaSize = 15 * 1024;
     uint8_t tensor_arena[kTensorArenaSize];
 }
@@ -45,20 +46,36 @@ namespace {
 // SCALING PARAMETERS
 // ============================================
 const float feature_means[14] = {
-    2.9984941893424035, 23.16369402746911, 1013.0671982280952,
-    53.903623685759044, -0.0005989599017029898, -0.010270618351526511,
-    23.165368912156953, 53.91925686486573, 0.37501771541950113,
-    0.16622378117913833, 0.12459254535147392, 0.28642290249433106,
-    -0.0014445685748922564, 1.094750326425299e-05
-};
+    3.0044820011337867,
+    23.21053373840282,
+    1013.0688882822077,
+    55.33569904627171,
+    -0.0019202682178527948,
+    -0.06336281784644843,
+    23.210052969104314,
+    55.34793385062385,
+    0.3752125850340136,
+    0.18735827664399093,
+    0.17750850340136054,
+    0.28629889455782315,
+    0.0005336082907681479,
+    0.00015219016281491104};
 
 const float feature_scales[14] = {
-    2.000526397589871, 3.282953186385993, 1.3122803479418343,
-    25.119759945110797, 0.6531299560240853, 7.958690649079111,
-    3.233140563755109, 23.95162309799656, 0.4841274920313859,
-    0.3722813932361297, 0.33025632922691917, 0.45208939759824757,
-    0.706717609081136, 0.7074942643700716
-};
+    2.000526397589871,
+    3.282953186385993,
+    1.3122803479418343,
+    25.119759945110797,
+    0.6531299560240853,
+    7.958690649079111,
+    3.233140563755109,
+    23.95162309799656,
+    0.4841274920313859,
+    0.3722813932361297,
+    0.33025632922691917,
+    0.45208939759824757,
+    0.706717609081136,
+    0.7074942643700716};
 
 // ============================================
 // ROLLING AVERAGE BUFFERS
@@ -84,26 +101,34 @@ float latest_probs[6] = {0, 0, 0, 0, 0, 0};
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
-void updateBuffers(float temp, int aqi) {
+void updateBuffers(float temp, int aqi)
+{
     temp_buffer[buffer_idx] = temp;
     aqi_buffer[buffer_idx] = aqi;
     buffer_idx = (buffer_idx + 1) % BUFFER_SIZE;
-    if (buffer_idx == 0) buffer_filled = true;
+    if (buffer_idx == 0)
+        buffer_filled = true;
 }
 
-float getAvgTemp() {
+float getAvgTemp()
+{
     float sum = 0;
     int count = buffer_filled ? BUFFER_SIZE : buffer_idx;
-    if (count == 0) return 0;
-    for (int i = 0; i < count; i++) sum += temp_buffer[i];
+    if (count == 0)
+        return 0;
+    for (int i = 0; i < count; i++)
+        sum += temp_buffer[i];
     return sum / count;
 }
 
-float getAvgAQI() {
+float getAvgAQI()
+{
     float sum = 0;
     int count = buffer_filled ? BUFFER_SIZE : buffer_idx;
-    if (count == 0) return 0;
-    for (int i = 0; i < count; i++) sum += aqi_buffer[i];
+    if (count == 0)
+        return 0;
+    for (int i = 0; i < count; i++)
+        sum += aqi_buffer[i];
     return sum / count;
 }
 
@@ -321,11 +346,13 @@ const char HTML_PAGE[] PROGMEM = R"rawliteral(
 // ============================================
 // WEB HANDLERS
 // ============================================
-void handleRoot() {
+void handleRoot()
+{
     server.send(200, "text/html", HTML_PAGE);
 }
 
-void handleData() {
+void handleData()
+{
     String json = "{";
     json += "\"temperature\":" + String(latest_temp, 1) + ",";
     json += "\"pressure\":" + String(latest_pressure, 1) + ",";
@@ -334,107 +361,123 @@ void handleData() {
     json += "\"confidence\":" + String(latest_confidence, 1) + ",";
     json += "\"labels\":[\"away\",\"chill\",\"cooking\",\"high_activity\",\"normal\",\"sleeping\"],";
     json += "\"probabilities\":[";
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++)
+    {
         json += String(latest_probs[i], 1);
-        if (i < 5) json += ",";
+        if (i < 5)
+            json += ",";
     }
     json += "]}";
-    
+
     server.send(200, "application/json", json);
 }
 
 // ============================================
 // SETUP
 // ============================================
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     delay(2000);
-    
+
     Serial.println("\n╔══════════════════════════════════╗");
     Serial.println("║  TinyML Complete System          ║");
     Serial.println("╚══════════════════════════════════╝\n");
-    
+
     // ===== WIFI =====
     Serial.println("[1/4] Connecting to WiFi...");
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
-    
+
     int timeout = 0;
-    while (WiFi.status() != WL_CONNECTED && timeout < 50) {
+    while (WiFi.status() != WL_CONNECTED && timeout < 50)
+    {
         delay(200);
         Serial.print(".");
         timeout++;
     }
-    
-    if (WiFi.status() == WL_CONNECTED) {
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
         Serial.println("\n✓ WiFi connected!");
         Serial.print("  IP: ");
         Serial.println(WiFi.localIP());
-    } else {
-        Serial.println("\n✗ WiFi failed!");
-        while(1);
     }
-    
+    else
+    {
+        Serial.println("\n✗ WiFi failed!");
+        while (1)
+            ;
+    }
+
     // ===== BMP280 =====
     Serial.println("\n[2/4] Initializing BMP280...");
     Wire.begin(21, 22);
-    
-    if (!bmp.begin(0x76)) {
-        if (!bmp.begin(0x77)) {
+
+    if (!bmp.begin(0x76))
+    {
+        if (!bmp.begin(0x77))
+        {
             Serial.println("✗ BMP280 not found!");
-            while(1);
+            while (1)
+                ;
         }
         Serial.println("✓ BMP280 at 0x77");
-    } else {
+    }
+    else
+    {
         Serial.println("✓ BMP280 at 0x76");
     }
-    
+
     bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,
                     Adafruit_BMP280::SAMPLING_X2,
                     Adafruit_BMP280::SAMPLING_X16,
                     Adafruit_BMP280::FILTER_X16,
                     Adafruit_BMP280::STANDBY_MS_500);
-    
+
     // ===== MQ135 =====
     Serial.println("\n[3/4] Initializing MQ135...");
     pinMode(MQ135_PIN, INPUT);
     Serial.println("✓ MQ135 configured");
     Serial.println("  Warming up 20s...");
     delay(20000);
-    
+
     // ===== TINYML =====
     Serial.println("\n[4/4] Loading AI model...");
-    
+
     static tflite::MicroErrorReporter micro_error_reporter;
     error_reporter = &micro_error_reporter;
-    
+
     model = tflite::GetModel(model_data);
-    if (model->version() != TFLITE_SCHEMA_VERSION) {
+    if (model->version() != TFLITE_SCHEMA_VERSION)
+    {
         Serial.println("✗ Model mismatch!");
-        while(1);
+        while (1)
+            ;
     }
-    
+
     static tflite::AllOpsResolver resolver;
     static tflite::MicroInterpreter static_interpreter(
-        model, resolver, tensor_arena, kTensorArenaSize, error_reporter
-    );
+        model, resolver, tensor_arena, kTensorArenaSize, error_reporter);
     interpreter = &static_interpreter;
-    
-    if (interpreter->AllocateTensors() != kTfLiteOk) {
+
+    if (interpreter->AllocateTensors() != kTfLiteOk)
+    {
         Serial.println("✗ Allocation failed!");
-        while(1);
+        while (1)
+            ;
     }
-    
+
     input = interpreter->input(0);
     output = interpreter->output(0);
-    
+
     Serial.println("✓ Model loaded");
-    
+
     // ===== WEB SERVER =====
     server.on("/", handleRoot);
     server.on("/data", handleData);
     server.begin();
-    
+
     Serial.println("\n╔══════════════════════════════════╗");
     Serial.println("║  System Ready!                   ║");
     Serial.print("║  Open: http://");
@@ -446,88 +489,95 @@ void setup() {
 // ============================================
 // MAIN LOOP
 // ============================================
-void loop() {
+void loop()
+{
     server.handleClient();
-    
+
     static unsigned long last_update = 0;
-    if (millis() - last_update < 2000) return;
+    if (millis() - last_update < 2000)
+        return;
     last_update = millis();
-    
+
     // ===== READ REAL SENSORS =====
     latest_temp = bmp.readTemperature();
     latest_pressure = bmp.readPressure() / 100.0F;
     int aqi_raw = analogRead(MQ135_PIN);
     float norm_aqi = (float)aqi_raw / 4095.0 * 500.0;
     latest_aqi = norm_aqi * 0.5;
-    
+
     float temp_change = latest_temp - prev_temp;
     float aqi_change = latest_aqi - prev_aqi;
     prev_temp = latest_temp;
     prev_aqi = latest_aqi;
-    
+
     updateBuffers(latest_temp, latest_aqi);
     float temp_avg = getAvgTemp();
     float aqi_avg = getAvgAQI();
-    
+
     // ===== TIME FEATURES =====
     unsigned long seconds = millis() / 1000;
     int hour = (seconds / 10) % 24;
     int day = (seconds / 240) % 7;
-    
+
     float hour_sin = sin(2 * PI * hour / 24.0);
     float hour_cos = cos(2 * PI * hour / 24.0);
-    
+
     int is_night = (hour >= 22 || hour <= 6) ? 1 : 0;
     int is_morning = (hour >= 6 && hour <= 9) ? 1 : 0;
     int is_cooking_hours = (hour >= 19 && hour <= 21) ? 1 : 0;
     int is_weekend = (day == 0 || day == 6) ? 1 : 0;
-    
+
     // ===== PREPARE FEATURES =====
     float features[14] = {
         (float)day, latest_temp, latest_pressure, (float)latest_aqi,
         temp_change, (float)aqi_change, temp_avg, aqi_avg,
         (float)is_night, (float)is_morning, (float)is_cooking_hours,
-        (float)is_weekend, hour_sin, hour_cos
-    };
-    
+        (float)is_weekend, hour_sin, hour_cos};
+
     // ===== NORMALIZE & QUANTIZE =====
-    for (int i = 0; i < 14; i++) {
+    for (int i = 0; i < 14; i++)
+    {
         float scaled = (features[i] - feature_means[i]) / feature_scales[i];
         int8_t quantized = round(scaled / input_scale) + input_zero_point;
         input->data.int8[i] = quantized;
     }
-    
+
     // ===== RUN INFERENCE =====
-    if (interpreter->Invoke() != kTfLiteOk) {
+    if (interpreter->Invoke() != kTfLiteOk)
+    {
         Serial.println("Inference failed!");
         return;
     }
-    
+
     // ===== GET RESULTS =====
     float max_prob = -999;
     int predicted = 0;
-    
-    for (int i = 0; i < 6; i++) {
+
+    for (int i = 0; i < 6; i++)
+    {
         latest_probs[i] = (output->data.int8[i] - output_zero_point) * output_scale;
-        if (latest_probs[i] > max_prob) {
+        if (latest_probs[i] > max_prob)
+        {
             max_prob = latest_probs[i];
             predicted = i;
         }
     }
-    
+
     // Softmax
     float sum = 0;
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++)
+    {
         latest_probs[i] = exp(latest_probs[i]);
         sum += latest_probs[i];
     }
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++)
+    {
         latest_probs[i] = (latest_probs[i] / sum) * 100;
     }
-    
+
     latest_behavior = String(behavior_labels[predicted]);
     latest_confidence = latest_probs[predicted];
-    
+
     Serial.print("Temp: ");
     Serial.print(latest_temp, 1);
     Serial.print("°C | AQI: ");
